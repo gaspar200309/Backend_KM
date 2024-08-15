@@ -13,6 +13,8 @@ app.use(express.json());
 
 // Middleware para parsear URL-encoded bodies
 app.use(express.urlencoded({ extended: true }));
+app.use(express.static('public'));
+
 
 app.use(cors({
     origin: ["http://localhost:5173"],
