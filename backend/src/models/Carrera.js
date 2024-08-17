@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 const CarreraSchema = new mongoose.Schema({
+    idCar: {type: String, required: true, unique: true},
     titulo: { type: String, required: true },
     descripcion: { type: String, required: true },
     lugaresDeTrabajo: { type: [String], required: true },

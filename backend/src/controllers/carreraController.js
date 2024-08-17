@@ -1,17 +1,65 @@
+const multer = require('multer');
+const path = require('path');
 const Carrera = require('../models/Carrera');
-const Universidad = require('../models/Universidad');
-const Beca = require('../models/Beca');
 
-exports.createCarrera = async (req, res) => {
-    try {
-        const newCarrera = new Carrera(req.body);
-        const savedCarrera = await newCarrera.save();
-        res.status(201).json(savedCarrera);
-    } catch (error) {
-        console.log("Error al crear la carrera", error)
-        res.status(500).json({ message: error.message });
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'public/uploads/carreras');  
+    },
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + path.extname(file.originalname)); 
     }
+});
+
+const upload = multer({ storage: storage }).single('imgSrc');  
+
+// Crear una nueva carrera con subida de imagen
+exports.createCarrera = async (req, res) => {
+    upload(req, res, async function (err) {
+        if (err) {
+            return res.status(500).json({ message: err.message });
+        }
+        try {
+            // Genera un valor único para idCar si no se pasa en el body
+            const idCar = req.body.idCar || generateUniqueId();  // Puedes usar una función para generar IDs únicos
+            
+            const newCarrera = new Carrera({
+                ...req.body,
+                idCar,  // Asegura que idCar tenga un valor
+                imgSrc: req.file ? `/uploads/carreras/${req.file.filename}` : '/uploads/carreras/default.jpg'
+            });
+            const savedCarrera = await newCarrera.save();
+            res.status(201).json(savedCarrera);
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
+    });
 };
+
+const generateUniqueId = () => {
+    return Date.now().toString(); 
+};
+
+
+exports.updateCarrera = async (req, res) => {
+    upload(req, res, async function (err) {
+        if (err) {
+            return res.status(500).json({ message: err.message });
+        }
+        try {
+            const updatedData = {
+                ...req.body,
+                imgSrc: req.file ? `/uploads/carreras/${req.file.filename}` : req.body.imgSrc  // Actualiza la imagen si se subió una nueva
+            };
+            const updatedCarrera = await Carrera.findByIdAndUpdate(req.params.id, updatedData, { new: true });
+            if (!updatedCarrera) return res.status(404).json({ message: 'Carrera no encontrada' });
+            res.status(200).json(updatedCarrera);
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
+    });
+};
+
 
 exports.getCarreras = async (req, res) => {
     try {
@@ -32,15 +80,6 @@ exports.getCarreraById = async (req, res) => {
     }
 };
 
-exports.updateCarrera = async (req, res) => {
-    try {
-        const updatedCarrera = await Carrera.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        if (!updatedCarrera) return res.status(404).json({ message: 'Carrera no encontrada' });
-        res.status(200).json(updatedCarrera);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-};
 
 exports.deleteCarrera = async (req, res) => {
     try {
