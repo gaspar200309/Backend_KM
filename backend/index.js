@@ -1,9 +1,9 @@
 const express = require('express');
 const app = express();
 const port = process.env.PORT || 3000; 
-const routes = require('./api/endPoints');
+const routes = require('./src/api/endPoints');
 const cors = require('cors');
-const connectDB = require('./config/db');
+const connectDB = require('./src/config/db');
 
 
 connectDB();
