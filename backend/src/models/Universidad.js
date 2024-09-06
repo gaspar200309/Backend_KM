@@ -22,7 +22,7 @@ const UniversidadSchema = new mongoose.Schema({
         required: true, 
         enum: ['publica', 'privada'] 
     },
-    logo: { type: String, required: true },
+    logo: { type: String, required: false },
     enlace: { type: String, required: true }
 });
 
