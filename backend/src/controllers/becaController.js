@@ -1,5 +1,6 @@
 const multer = require('multer');
 const path = require('path');
+const Beca = require('../models/Beca')
 
 // Configuración de multer para almacenar imágenes
 const storage = multer.diskStorage({

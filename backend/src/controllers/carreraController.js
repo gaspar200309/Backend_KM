@@ -13,14 +13,12 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage }).single('imgSrc');  
 
-// Crear una nueva carrera con subida de imagen
 exports.createCarrera = async (req, res) => {
     upload(req, res, async function (err) {
         if (err) {
             return res.status(500).json({ message: err.message });
         }
         try {
-            // Genera un valor único para idCar si no se pasa en el body
             const idCar = req.body.idCar || generateUniqueId();  // Puedes usar una función para generar IDs únicos
             
             const newCarrera = new Carrera({
@@ -90,3 +88,23 @@ exports.deleteCarrera = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+exports.getRecommendedCarreras = async (req, res) => {
+    try {
+        const carrerasPorArea = await Carrera.aggregate([
+            {
+                $group: {
+                    _id: "$area",  
+                    carrera: { $first: "$$ROOT" } 
+                }
+            },
+            { $limit: 10 } 
+        ]);
+        const carrerasPopuladas = await Carrera.populate(carrerasPorArea.map(c => c.carrera), { path: 'universidades' });
+        
+        res.status(200).json(carrerasPopuladas);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
