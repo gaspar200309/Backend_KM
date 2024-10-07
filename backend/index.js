@@ -14,7 +14,8 @@ app.use(express.static('public'));
 // Lista de URLs permitidas (tanto en desarrollo como en producción)
 const allowedOrigins = [
     'http://localhost:5173', // URL del frontend en desarrollo
-    'https://proyecto-km-git-main-gaspar200309s-projects.vercel.app' // URL del frontend en producción
+    'https://proyecto-km-git-main-gaspar200309s-projects.vercel.app',
+    'https://proyecto-km.vercel.app/'
 ];
 
 app.use(cors({
