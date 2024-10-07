@@ -14,14 +14,19 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
-const clientUrl = process.env.NODE_ENV === 'production' 
+/* const clientUrl = process.env.NODE_ENV === 'production' 
     ? process.env.PROD_CLIENT_URL 
-    : process.env.DEV_CLIENT_URL;
+    : process.env.DEV_CLIENT_URL; */
 
+const clientUrls = [
+    process.env.DEV_CLIENT_URL,
+    process.env.PROD_CLIENT_URL
+];
+    
 app.use(cors({
-    origin: [clientUrl],
+    origin: clientUrls,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    credentials: true 
+    credentials: true // Permitir cookies y autenticación
 }));
 
 app.use('/', routes);
