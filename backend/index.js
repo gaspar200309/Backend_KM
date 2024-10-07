@@ -26,7 +26,7 @@ const clientUrls = [
 app.use(cors({
     origin: clientUrls,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    credentials: true // Permitir cookies y autenticación
+    credentials: true 
 }));
 
 app.use('/', routes);
