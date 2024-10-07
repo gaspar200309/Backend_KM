@@ -8,11 +8,9 @@ const connectDB = require('./src/config/db');
 
 connectDB();
 
-// Middleware para parsear JSON
 app.use(express.json());
 
 
-// Middleware para parsear URL-encoded bodies
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
@@ -26,7 +24,6 @@ app.use(cors({
     credentials: true 
 }));
 
-// Usar las rutas
 app.use('/', routes);
 
 app.listen(port, () => {
