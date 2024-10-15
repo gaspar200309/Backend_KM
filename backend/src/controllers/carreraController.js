@@ -1,17 +1,19 @@
 const multer = require('multer');
-const path = require('path');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const cloudinary = require('../config/cloudinaryConf'); // Importa la configuración de Cloudinary
 const Carrera = require('../models/Carrera');
 
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, 'public/uploads/carreras');  
+// Configurar el almacenamiento de multer para Cloudinary
+const storage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+        folder: 'carreras', // Carpeta en Cloudinary
+        allowed_formats: ['jpg', 'png'],
+        public_id: (req, file) => `${Date.now()}-${file.originalname}`, // Nombre del archivo en Cloudinary
     },
-    filename: function (req, file, cb) {
-        cb(null, Date.now() + path.extname(file.originalname)); 
-    }
 });
 
-const upload = multer({ storage: storage }).single('imgSrc');  
+const upload = multer({ storage }).single('imgSrc');  // Modificamos para usar Cloudinary
 
 exports.createCarrera = async (req, res) => {
     upload(req, res, async function (err) {
@@ -19,12 +21,11 @@ exports.createCarrera = async (req, res) => {
             return res.status(500).json({ message: err.message });
         }
         try {
-            const idCar = req.body.idCar || generateUniqueId();  // Puedes usar una función para generar IDs únicos
-            
+            const idCar = req.body.idCar || generateUniqueId();  // Generar ID único si no existe
             const newCarrera = new Carrera({
                 ...req.body,
-                idCar,  // Asegura que idCar tenga un valor
-                imgSrc: req.file ? `/uploads/carreras/${req.file.filename}` : '/uploads/carreras/default.jpg'
+                idCar,
+                imgSrc: req.file ? req.file.path : '/uploads/carreras/default.jpg',  // La URL pública de Cloudinary
             });
             const savedCarrera = await newCarrera.save();
             res.status(201).json(savedCarrera);
@@ -33,6 +34,7 @@ exports.createCarrera = async (req, res) => {
         }
     });
 };
+
 
 const generateUniqueId = () => {
     return Date.now().toString(); 
@@ -47,7 +49,7 @@ exports.updateCarrera = async (req, res) => {
         try {
             const updatedData = {
                 ...req.body,
-                imgSrc: req.file ? `/uploads/carreras/${req.file.filename}` : req.body.imgSrc  // Actualiza la imagen si se subió una nueva
+                imgSrc: req.file ? req.file.path : req.body.imgSrc,  // Si se sube una nueva imagen, usa la URL de Cloudinary
             };
             const updatedCarrera = await Carrera.findByIdAndUpdate(req.params.id, updatedData, { new: true });
             if (!updatedCarrera) return res.status(404).json({ message: 'Carrera no encontrada' });
@@ -81,13 +83,22 @@ exports.getCarreraById = async (req, res) => {
 
 exports.deleteCarrera = async (req, res) => {
     try {
+        const carrera = await Carrera.findById(req.params.id);
+        if (!carrera) return res.status(404).json({ message: 'Carrera no encontrada' });
+
+        // Eliminar la imagen de Cloudinary si existe
+        if (carrera.imgSrc) {
+            const publicId = carrera.imgSrc.split('/').pop().split('.')[0];  // Obtener el public_id de la imagen
+            await cloudinary.uploader.destroy(`carreras/${publicId}`);  // Eliminar la imagen de Cloudinary
+        }
+
         const deletedCarrera = await Carrera.findByIdAndDelete(req.params.id);
-        if (!deletedCarrera) return res.status(404).json({ message: 'Carrera no encontrada' });
         res.status(200).json({ message: 'Carrera eliminada' });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
+
 
 exports.getRecommendedCarreras = async (req, res) => {
     try {
