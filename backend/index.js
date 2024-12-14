@@ -28,7 +28,7 @@ app.use(cors({
         }
     },
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    credentials: true // Permitir el uso de cookies y credenciales
+    credentials: true 
 }));
 
 app.use('/', routes);

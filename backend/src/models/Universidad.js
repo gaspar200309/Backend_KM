@@ -15,12 +15,12 @@ const UniversidadSchema = new mongoose.Schema({
     tipoEscuela: { 
         type: String, 
         required: true, 
-        enum: ['Universidad', 'Instituto', 'Normal'] 
+        enum: ['Universidad', 'Instituto', 'Normal', 'Policía y Militar'] 
     },
     esPublica: { 
         type: String, 
         required: true, 
-        enum: ['publica', 'privada'] 
+        enum: ['publica', 'privada', 'Policía y Militar'] 
     },
     logo: { type: String, required: false },
     enlace: { type: String, required: true }

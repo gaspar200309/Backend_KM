@@ -2,6 +2,8 @@ const multer = require('multer');
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const cloudinary = require('../config/cloudinaryConf'); // Importa la configuración de Cloudinary
 const Carrera = require('../models/Carrera');
+const Universidad = require('../models/Universidad');
+
 
 // Configurar el almacenamiento de multer para Cloudinary
 const storage = new CloudinaryStorage({
@@ -119,3 +121,82 @@ exports.getRecommendedCarreras = async (req, res) => {
     }
 };
 
+exports.getRecommendedCarrerasByArea = async (req, res) => {
+    try {
+        const carrera = await Carrera.findById(req.params.id);
+        if (!carrera) return res.status(404).json({ message: 'Carrera no encontrada' });
+
+        const carrerasRecomendadas = await Carrera.find({
+            area: carrera.area,
+            _id: { $ne: carrera._id }, 
+        }).limit(10);
+
+        res.status(200).json(carrerasRecomendadas);
+
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+const normalizeString = (str) => {
+    return str
+      .normalize('NFD')
+      .replace(/[̀-ͯ]/g, '')
+      .toLowerCase()
+      .trim();
+  };
+  
+exports.buscarDatos = async (req, res) => {
+    const { query } = req.query;
+
+    if (!query) {
+        return res.status(400).json({ message: 'Debe proporcionar un término de búsqueda.' });
+      }
+
+    try {
+        // Búsqueda en la base de datos
+        const resultados = await Carrera.find({
+            $or: [
+                { nombre: new RegExp(query, 'i') }, // Buscar en nombre (insensible a mayúsculas)
+                { universidad: new RegExp(query, 'i') } // Buscar en universidad
+            ]
+        });
+
+        if (resultados.length === 0) {
+            return res.status(404).json({ message: 'No se encontraron resultados para la búsqueda.' });
+        }
+
+        // Respuesta con los resultados
+        res.json(resultados);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error en el servidor.' });
+    }
+
+
+  
+   
+  /* 
+    const normalizedSearch = normalizeString(query);
+  console.log(normalizedSearch)
+    try {
+      // Buscar carreras
+      const carreras = await Carrera.find({
+        $or: [
+          { titulo: { $regex: normalizedSearch, $options: 'i' } },
+          { descripcion: { $regex: normalizedSearch, $options: 'i' } }
+        ]
+      });
+  
+      // Buscar universidades e institutos
+      const universidades = await Universidad.find({
+        nombre: { $regex: normalizedSearch, $options: 'i' }
+      });
+  
+      const response = res.status(200).json({ carreras, universidades });
+      console.log(response)
+    } catch (error) {
+      console.error('Error al realizar la búsqueda:', error);
+      res.status(500).json({ message: 'Error en el servidor.' });
+    } */
+  };  

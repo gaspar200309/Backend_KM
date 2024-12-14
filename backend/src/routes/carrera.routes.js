@@ -14,4 +14,8 @@ router.delete('/carreras/:id', carreraController.deleteCarrera);
 
 router.get('/recomendadas', carreraController.getRecommendedCarreras);
 
+router.get('/:id/recomendaciones', carreraController.getRecommendedCarrerasByArea);
+
+router.get('/search', carreraController.buscarDatos);
+
 module.exports = router;
