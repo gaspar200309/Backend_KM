@@ -13,14 +13,15 @@ app.use(express.static('public'));
 
 // Lista de URLs permitidas (tanto en desarrollo como en producción)
 const allowedOrigins = [
-    'http://localhost:5173', // URL del frontend en desarrollo
+    'http://localhost:5173', 
     'https://proyecto-km-git-main-gaspar200309s-projects.vercel.app',
     'https://proyecto-km.vercel.app'
-];
+ ];
+ 
 
-app.use(cors({
+ app.use(cors({
     origin: function (origin, callback) {
-        // Permitir solicitudes sin origen (e.g., Postman) o de orígenes permitidos
+        console.log('Request origin:', origin);  // Añadir para depurar
         if (!origin || allowedOrigins.includes(origin)) {
             callback(null, true);
         } else {
@@ -30,6 +31,7 @@ app.use(cors({
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     credentials: true 
 }));
+
 
 app.use('/', routes);
 
