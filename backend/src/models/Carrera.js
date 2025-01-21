@@ -9,6 +9,7 @@ const CarreraSchema = new mongoose.Schema({
     universidades: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Universidad', default: [] }],
     area: { type: String, required: true },
     nivel: { type: String, required: true },
+    video: { type: String },
     duracion: { type: String },
     imgSrc: { type: String, required: true }
 });

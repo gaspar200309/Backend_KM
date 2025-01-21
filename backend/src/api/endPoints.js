@@ -12,7 +12,7 @@ const contactoRoutes = require('../routes/contacto.routes')
 router.use('/api/auth', authRoutes);
 router.use('/api/chats', chatBotRoutes);
 router.use('/api/carreras', carreraRoutes);
-router.use('/api/universidades', universidadRoutes);
+router.use('/api/universidades/', universidadRoutes);
 router.use('/api/becas', becaRoutes);
 router.use('/api/comentarios', comentarioRoutes);
 router.use('/api/contactos', contactoRoutes)

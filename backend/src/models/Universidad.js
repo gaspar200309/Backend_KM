@@ -11,6 +11,7 @@ const DireccionSchema = new mongoose.Schema({
 
 const UniversidadSchema = new mongoose.Schema({
     nombre: { type: String, required: true },
+    descripcion: { type: String},
     direcciones: [DireccionSchema], 
     tipoEscuela: { 
         type: String, 
